@@ -22,8 +22,8 @@ include 'db_connect.php';
 
     <h2>Canteen Menu</h2>
     
-    <!-- The form sends data to place_order.php using the POST method -->
-    <form action="place_order.php" method="POST">
+    <!-- The form sends data to cart.php using the POST method -->
+    <form action="cart.php" method="POST">
         
         <!-- Hardcoding user_id to 1 for testing purposes until you build a login system -->
         <input type="hidden" name="user_id" value="1">
