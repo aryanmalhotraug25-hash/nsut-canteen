@@ -1,6 +1,13 @@
 <?php
-// Include the database connection you just created
+require_once 'auth.php';
 include 'db_connect.php';
+
+// Must be logged in. Canteen staff go to their dashboard instead of the student menu.
+$user_id = require_login();
+if (($_SESSION['role'] ?? '') === 'staff') {
+    header('Location: dashboard.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -11,6 +18,8 @@ include 'db_connect.php';
     <title>NSUT Canteen Pre-Order</title>
     <style>
         body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .nav a { color: #007bff; text-decoration: none; margin-left: 14px; }
         .menu-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
         .menu-item h3 { margin: 0 0 10px 0; }
         .price { color: green; font-weight: bold; }
@@ -20,13 +29,20 @@ include 'db_connect.php';
 </head>
 <body>
 
+    <div class="nav">
+        <span>Hello, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></span>
+        <span>
+            <a href="my_orders.php">My Orders</a>
+            <a href="logout.php">Log out</a>
+        </span>
+    </div>
+
     <h2>Canteen Menu</h2>
-    
+
     <!-- The form sends data to cart.php using the POST method -->
     <form action="cart.php" method="POST">
-        
-        <!-- Hardcoding user_id to 1 for testing purposes until you build a login system -->
-        <input type="hidden" name="user_id" value="1">
+
+        <!-- user_id is no longer sent from the browser: cart.php and place_order.php read it from the session -->
 
         <?php
         // Fetch only available items from the database
@@ -34,15 +50,13 @@ include 'db_connect.php';
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
-            // Loop through each row in the result set
             while($row = $result->fetch_assoc()) {
                 ?>
                 <div class="menu-item">
                     <h3><?php echo htmlspecialchars($row['item_name']); ?></h3>
                     <p class="price">₹<?php echo htmlspecialchars($row['price']); ?></p>
-                    
+
                     <label>Quantity:</label>
-                    <!-- Uses an array format items[item_id] to easily process multiple items later -->
                     <input type="number" name="items[<?php echo $row['item_id']; ?>]" value="0" min="0" max="10">
                 </div>
                 <?php

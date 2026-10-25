@@ -1,4 +1,8 @@
 <?php
+require_once 'auth.php';
+// Staff only: students/faculty get 'Access denied', logged-out visitors go to login
+require_role('staff');
+
 // Connect to the database
 include 'db_connect.php';
 
@@ -37,6 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['mark_delivered'])) {
 </head>
 <body>
 
+    <p style="text-align:right">Logged in as <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong> | <a href="logout.php">Log out</a></p>
     <h2>Staff Dashboard - Live Orders</h2>
 
     <?php

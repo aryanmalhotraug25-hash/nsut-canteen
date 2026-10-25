@@ -1,5 +1,9 @@
 <?php
+require_once 'auth.php';
 include 'db_connect.php';
+
+// Must be logged in; the user ID now comes from the session
+$user_id = require_login();
 
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
     // Redirect back to menu if someone tries to access cart.php directly
@@ -7,8 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
     exit();
 }
 
-$user_id = intval($_POST['user_id']);
-$items_ordered = $_POST['items'];
+$items_ordered = $_POST['items'] ?? [];
 
 $total_price = 0;
 $cart_items = [];
@@ -77,10 +80,8 @@ foreach ($items_ordered as $item_id => $quantity) {
 
             <!-- This form forwards the exact same structure to place_order.php -->
             <form action="place_order.php" method="POST" style="margin-top: 20px;">
-                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                
                 <?php foreach ($cart_items as $item): ?>
-                    <input type="hidden" name="items[<?php echo $item['id']; ?>]" value="<?php echo $item['quantity']; ?>">
+                    <input type="hidden" name="items[<?php echo (int) $item['id']; ?>]" value="<?php echo $item['quantity']; ?>">
                 <?php endforeach; ?>
 
                 <p style="text-align: center; font-size: 14px; color: #666;">Choose a payment method to complete your order:</p>
